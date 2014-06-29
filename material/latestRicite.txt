@@ -1,0 +1,11 @@
+prep	1
+v	0
+num	-1
+int	-1
+art	-1
+conj	-1
+n	-1
+abbr	-1
+pron	-1
+adj	-1
+adv	-1
