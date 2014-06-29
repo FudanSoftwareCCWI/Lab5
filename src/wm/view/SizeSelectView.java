@@ -56,7 +56,7 @@ public class SizeSelectView extends ReciteProcessView implements ISizeSelectView
 
 		leftValue = 1;
 		rightValue = controller.getAvailableSize();
-
+		System.out.println("right "+rightValue);
 		pivotValue = rightValue / 2;
 		slider = new JSlider(leftValue, rightValue);
 		slider = new JSlider(leftValue, rightValue, pivotValue);
