@@ -7,58 +7,57 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import wm.model.Dictionaries;
 import wm.model.Dictionary;
 import wm.model.Word;
 
 public class DictionaryImpl implements DictionaryDAO {
-	private final static int DICNUMBER = 26;
+	private int DICNUMBER = 0;
 
 	@Override
 	public Dictionaries selectAllDictionay(String filename) {
 		List<Dictionary> dic = new ArrayList<Dictionary>();
 		List<List<Word>> tempWords = new ArrayList<List<Word>>();
-		for (int i = 0; i < DICNUMBER; i++) {
-			tempWords.add(new ArrayList<Word>());
-		}
-		int index = 0;
+		List<Word> words = new ArrayList<Word>();
+		List<String> type = new ArrayList<String>();
 
 		try {
-			File allDic = new File("material/" + filename);
+			words = getWords(filename);
+			type = getDicNumber(words);
+
 			File logfile = new File("material/log.txt");
 			File latestRicite = new File("material/latestRicite.txt");
-			String[] entry;
 			String[] flag;
 			String[] latestEntry;
-			String d = "";
 			String log = "";
 			String latest = "";
 			boolean recited = false;
 			boolean correct = false;
-			@SuppressWarnings("resource")
-			BufferedReader dicReader = new BufferedReader(
-					new InputStreamReader(new FileInputStream(allDic), "UTF-8"));
 
 			if (!logfile.exists()) {
-				createLogfile(filename);
+				createLogfile(words);
 			}
 			if (!latestRicite.exists()) {
-				createLatestFile();
+				createLatestFile(type);
+			}
+
+			for (int i = 0; i < DICNUMBER; i++) {
+				tempWords.add(new ArrayList<Word>());
 			}
 
 			@SuppressWarnings("resource")
 			BufferedReader logReader = new BufferedReader(new FileReader(
 					logfile));
 
-			while ((d = dicReader.readLine()) != null
-					&& (log = logReader.readLine()) != null) {
-
-				entry = d.split("\\s+");
+			int line = 0;
+			while ((log = logReader.readLine()) != null) {
 				flag = log.split("\t");
 				if (flag[1].equals("1")) {
 					recited = true;
@@ -72,10 +71,23 @@ public class DictionaryImpl implements DictionaryDAO {
 					correct = false;
 				}
 
-				index = entry[0].charAt(0) - 'a';
+				words.get(line).setCorrect(correct);
+				words.get(line).setRecited(recited);
+				line++;
+			}
 
-				tempWords.get(index).add(
-						new Word(entry[0], entry[1], recited, correct));
+			for (Word word : words) {
+				for (int i = 0; i < type.size(); i++) {
+					if (i == 1) {
+						if (word.getMeaning().contains(type.get(i)) && !word.getMeaning().contains("adv")) {
+							tempWords.get(i).add(word);
+						}
+					} else {
+						if (word.getMeaning().contains(type.get(i))) {
+							tempWords.get(i).add(word);
+						}
+					}
+				}
 			}
 
 			@SuppressWarnings("resource")
@@ -84,11 +96,11 @@ public class DictionaryImpl implements DictionaryDAO {
 			int i = 0;
 			while ((latest = latestReader.readLine()) != null) {
 				latestEntry = latest.split("\t");
-				String first = latestEntry[0].substring(0, 1);
+				String first = latestEntry[0];
 				int present = Integer.parseInt(latestEntry[1]);
 
-				Dictionary tempD = new Dictionary("Dictionary "
-						+ first.toUpperCase(), tempWords.get(i++), present);
+				Dictionary tempD = new Dictionary("Dictionary\t" + first,
+						tempWords.get(i++), present);
 				dic.add(tempD);
 			}
 
@@ -101,31 +113,6 @@ public class DictionaryImpl implements DictionaryDAO {
 
 	@Override
 	public boolean updateAllDictionary(Dictionaries dictionaries) {
-		Dictionary dic;
-		int wordSize;
-
-		String record = "";
-
-		try {
-			File logfile = new File("material/log.txt");
-			if (!logfile.exists()) {
-				logfile.createNewFile();
-			}
-			PrintWriter logWriter = new PrintWriter(logfile);
-			for (int i = 0; i < dictionaries.getDicNumber(); i++) {
-				dic = dictionaries.getDictionary(i);
-				wordSize = dic.getSize();
-				for (int j = 0; j < wordSize; j++) {
-					record = dic.getWordEntry(j);
-					logWriter.append(record + "\n");
-				}
-			}
-			logWriter.close();
-			return true;
-		} catch (Exception e) {
-			e.getStackTrace();
-		}
-
 		return false;
 	}
 
@@ -141,11 +128,11 @@ public class DictionaryImpl implements DictionaryDAO {
 
 	@Override
 	public boolean updateDictionary(Dictionary dictionary) {
-		String prefix = dictionary.getKey(0).substring(0, 1);
+		String[] prefix = dictionary.getName().split("\t");
+		String p = prefix[1];
 		String logline = "";
 		String latestline = "";
 		String record = "";
-		int k = 0;
 		try {
 			File logfile = new File("material/log.txt");
 			File newLogfile = new File("material/newlog.txt");
@@ -166,24 +153,27 @@ public class DictionaryImpl implements DictionaryDAO {
 			@SuppressWarnings("resource")
 			BufferedReader latestReader = new BufferedReader(new FileReader(
 					latestfile));
+			int index = 0;
 			while ((logline = logReader.readLine()) != null) {
 				entry = logline.split("\t");
-
-				if (entry[0].substring(0, 1).equals(prefix)) {
-					record = dictionary.getWordEntry(k);
-					logWriter.append(record + "\n");
-					k++;
-				} else {
-					logWriter.append(logline + "\n");
+				if (index < dictionary.getSize()) {
+					if (entry[0].equals(dictionary.getKey(index))) {
+						record = dictionary.getWordEntry(index);
+						logWriter.append(dictionary.getKey(index) + "\t"
+								+ record + "\n");
+						index++;
+					} else {
+						logWriter.append(logline + "\n");
+					}
 				}
 			}
 			logWriter.close();
 			while ((latestline = latestReader.readLine()) != null) {
 				entry = latestline.split("\t");
 
-				if (entry[0].substring(0, 1).equals(prefix)) {
+				if (entry[0].equals(p)) {
 					int present = dictionary.getPresentWord();
-					latestWriter.append(prefix + "\t" + present + "\n");
+					latestWriter.append(p + "\t" + present + "\n");
 				} else {
 					latestWriter.append(latestline + "\n");
 				}
@@ -207,22 +197,17 @@ public class DictionaryImpl implements DictionaryDAO {
 		return false;
 	}
 
-	private void createLogfile(String filename) {
-		String dicEntry = "";
+	private void createLogfile(List<Word> words) {
 		String first = "";
 
 		try {
-			File dictionary = new File("material/" + filename);
 			File logfile = new File("material/log.txt");
 			if (!logfile.exists()) {
 				logfile.createNewFile();
 			}
 			PrintWriter logWriter = new PrintWriter(logfile);
-			@SuppressWarnings("resource")
-			BufferedReader dicReader = new BufferedReader(new FileReader(
-					dictionary));
-			while ((dicEntry = dicReader.readLine()) != null) {
-				first = dicEntry.substring(0, 1);
+			for (Word word : words) {
+				first = word.getKey();
 				logWriter.append(first + "\t" + 0 + "\t" + 0 + "\n");
 			}
 			logWriter.close();
@@ -232,21 +217,51 @@ public class DictionaryImpl implements DictionaryDAO {
 
 	}
 
-	private void createLatestFile() {
+	private void createLatestFile(List<String> type) {
 		try {
 			File latestRicited = new File("material/latestRicite.txt");
 			if (!latestRicited.exists()) {
 				latestRicited.createNewFile();
 			}
 			PrintWriter latestwriter = new PrintWriter(latestRicited);
-			for (int i = 0; i < DICNUMBER; i++) {
-				char first = (char) ('a' + i);
-				latestwriter.append(first + "\t-1\n");
+			for (String first : type) {
+				if (!first.equals(""))
+					latestwriter.append(first + "\t-1\n");
 			}
 			latestwriter.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
+
+	private List<Word> getWords(String filename) throws Exception {
+		DictionaryHandler sax = new DictionaryHandler();
+		InputStream allDic = new FileInputStream("material/" + filename);
+		List<Word> words = sax.getWords(allDic);
+		return words;
+	}
+
+	private List<String> getDicNumber(List<Word> words) {
+		Set<String> type = new HashSet<String>();
+		List<String> result = new ArrayList<String>();
+		String[] temp;
+		for (Word word : words) {
+			System.out.println(word.getMeaning());
+			temp = word.getMeaning().split("\\.");
+			type.add(temp[0]);
+		}
+		DICNUMBER = type.size() - 1;
+		for (String s : type) {
+			if (!s.equals("")) {
+				result.add(s);
+			}
+		}
+		return result;
+	}
+
+//	public static void main(String[] args) throws Throwable {
+//		DictionaryImpl d = new DictionaryImpl();
+//		d.selectAllDictionay("dictionary.xml");
+//	}
 
 }

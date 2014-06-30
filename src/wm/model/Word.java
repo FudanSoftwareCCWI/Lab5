@@ -85,7 +85,7 @@ public class Word implements IWord{
 			c = "1";
 		else
 			c = "0";
-		return key.substring(0,1) + "\t" + r + "\t" + c;
+		return r + "\t" + c;
 	}
 
 }
