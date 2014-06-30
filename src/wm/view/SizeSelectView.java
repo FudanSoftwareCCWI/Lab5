@@ -79,7 +79,7 @@ public class SizeSelectView extends ReciteProcessView implements ISizeSelectView
 				2 * UI_Constants.UNITHEIGHT + 37, WMLabel.LABEL_SMALL,
 				WMLabel.LABEL_SMALL);
 		right.setBounds((int) (UI_Constants.GLOBAL_WIDTH * 0.75),
-				2 * UI_Constants.UNITHEIGHT + 37, WMLabel.LABEL_NORMAL,
+				2 * UI_Constants.UNITHEIGHT + 37, WMLabel.LABEL_NORMAL + 25,
 				WMLabel.LABEL_SMALL);
 		setPivot(pivotValue);
 		nextBtn.setBounds((UI_Constants.GLOBAL_WIDTH - IconConstants.ICON_TINY) / 2, 3
