@@ -21,7 +21,8 @@ import wm.view.component.WMLabel;
  * @author Sidney Fan
  * 
  */
-public class SizeSelectView extends ReciteProcessView implements ISizeSelectView{
+public class SizeSelectView extends ReciteProcessView implements
+		ISizeSelectView {
 
 	/**
 	 * 
@@ -56,7 +57,7 @@ public class SizeSelectView extends ReciteProcessView implements ISizeSelectView
 
 		leftValue = 1;
 		rightValue = controller.getAvailableSize();
-		System.out.println("right "+rightValue);
+		System.out.println("right " + rightValue);
 		pivotValue = rightValue / 2;
 		slider = new JSlider(leftValue, rightValue);
 		slider = new JSlider(leftValue, rightValue, pivotValue);
@@ -73,7 +74,8 @@ public class SizeSelectView extends ReciteProcessView implements ISizeSelectView
 		centerPanel.add(right);
 		centerPanel.add(pivot);
 
-		slider.setBounds(UI_Constants.GLOBAL_WIDTH / 4, 2*UI_Constants.UNITHEIGHT+PADDING-10,
+		slider.setBounds(UI_Constants.GLOBAL_WIDTH / 4, 2
+				* UI_Constants.UNITHEIGHT + PADDING - 10,
 				UI_Constants.GLOBAL_WIDTH / 2, 20);
 		left.setBounds(UI_Constants.GLOBAL_WIDTH / 4 - 20,
 				2 * UI_Constants.UNITHEIGHT + 37, WMLabel.LABEL_SMALL,
@@ -82,9 +84,10 @@ public class SizeSelectView extends ReciteProcessView implements ISizeSelectView
 				2 * UI_Constants.UNITHEIGHT + 37, WMLabel.LABEL_NORMAL + 25,
 				WMLabel.LABEL_SMALL);
 		setPivot(pivotValue);
-		nextBtn.setBounds((UI_Constants.GLOBAL_WIDTH - IconConstants.ICON_TINY) / 2, 3
-				* UI_Constants.UNITHEIGHT + PADDING, IconConstants.ICON_TINY,
-				IconConstants.ICON_TINY);
+		nextBtn.setBounds(
+				(UI_Constants.GLOBAL_WIDTH - IconConstants.ICON_TINY) / 2, 3
+						* UI_Constants.UNITHEIGHT + PADDING,
+				IconConstants.ICON_TINY, IconConstants.ICON_TINY);
 		nextTip.setBounds(0, 3 * UI_Constants.UNITHEIGHT + PADDING + 5,
 				UI_Constants.GLOBAL_WIDTH, UI_Constants.UNITHEIGHT);
 
@@ -104,7 +107,7 @@ public class SizeSelectView extends ReciteProcessView implements ISizeSelectView
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				controller.setReciteSize(slider.getValue());
-//				controller.switchToReciteWord();
+				// controller.switchToReciteWord();
 			}
 		});
 	}
@@ -114,8 +117,8 @@ public class SizeSelectView extends ReciteProcessView implements ISizeSelectView
 				/ (double) rightValue * UI_Constants.GLOBAL_WIDTH / 2)
 				- WMLabel.LABEL_SMALL;
 		pivot.setText(String.valueOf(value));
-		pivot.setBounds(x, 2 * UI_Constants.UNITHEIGHT, WMLabel.LABEL_NORMAL,
-				WMLabel.LABEL_SMALL);
+		pivot.setBounds(x, 2 * UI_Constants.UNITHEIGHT,
+				WMLabel.LABEL_NORMAL + 25, WMLabel.LABEL_SMALL);
 	}
 
 	public int getSelectedSize() {

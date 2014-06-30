@@ -74,7 +74,10 @@ public class ReciteProcessController implements IReciteProcessController {
 	 */
 	@Override
 	public void startByLastTime() {
-		this.startWord=model.getPresentWord()+1;
+		if(model.getPresentWord()==model.getSize()-1)
+			this.startWord=0;
+		else
+			this.startWord=model.getPresentWord()+1;
 		this.presentWord=this.startWord-1;
 		this.switchToSizeSelect();
 	}
